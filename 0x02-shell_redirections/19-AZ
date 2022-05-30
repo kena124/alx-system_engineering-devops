@@ -1,0 +1,2 @@
+#!/bin/bsh
+tr A Z | tr c e

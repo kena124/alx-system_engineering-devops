@@ -1,35 +1,35 @@
-# Configures Nginx to serve the AirBnB_clone_v3 API.
-
 server {
-    # Listen on port 80
-    listen      80 default_server;
-    listen      [::]:80 default_server ipv6only=on;
+	listen 80 default_server;
+	listen [::]:80 default_server;
 
-    # Use server IP as domain name
-    server_name 104.196.168.90;
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
 
-    # Customize HTTP response header
-    add_header  X-Served-By 375-web-01;
+	server_name _;
 
-    # Serve /airbnb-onepage/ route on AirBnB_clone_v3
-    location = /airbnb-onepage/ {
-        proxy_pass http://127.0.0.1:5000/airbnb-onepage/;
-    }
+	location / {
+		try_files $uri $uri/ =404;
+	}
 
-    # Serve /number_odd_or_even/ route on AirBnB_clone_v3
-    location ~ /airbnb-dynamic/number_odd_or_even/(\d+)$ {
-        proxy_pass http://127.0.0.1:5001/number_odd_or_even/$1;
-    }
+	location /airbnb-onepage/ {
+		proxy_pass http://localhost:5000;
+	}
 
-    # Serve API on AirBnB_clone_v3
-    location /api {
-        proxy_pass http://127.0.0.1:5002/api;
-    }
+	location /airbnb-dynamic/ {
+		proxy_pass http://localhost:5001/;
+	}
 
-    # 404 error page
-    error_page 404 /404.html;
-    location /404 {
-        root /var/www/html;
-        internal;
-    }
+	location /api/ {
+		proxy_pass http://localhost:5002;
+	}
+
+	if ($request_filename ~ redirect_me){
+		rewrite ^ https://sketchfab.com/bluepeno/models permanent;
+	}
+
+	error_page 404 /404.html;
+	location = /404.html {
+		root /var/www/error/;
+		internal;
+	}
 }

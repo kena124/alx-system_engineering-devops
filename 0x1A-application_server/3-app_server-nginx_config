@@ -1,31 +1,30 @@
+# Configures Nginx to serve the /number_odd_or_even/ route on AirBnB_clone_v2.
+
 server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
+    # Listen on port 80
+    listen      80 default_server;
+    listen      [::]:80 default_server ipv6only=on;
 
-	root /var/www/html;
-	index index.html index.htm index.nginx-debian.html;
+    # Use server IP as domain name
+    server_name 104.196.168.90;
 
-	server_name _;
+    # Customize HTTP response header
+    add_header  X-Served-By 375-web-01;
 
-	location / {
-		try_files $uri $uri/ =404;
-	}
+    # Serve /airbnb-onepage/ route on AirBnB_clone_v2
+    location = /airbnb-onepage/ {
+        proxy_pass http://127.0.0.1:5000/airbnb-onepage/;
+    }
 
-	location /airbnb-onepage/ {
-		proxy_pass http://localhost:5000;
-	}
+    # Serve /number_odd_or_even/ route on AirBnB_clone_v2
+    location ~ /airbnb-dynamic/number_odd_or_even/(\d+)$ {
+        proxy_pass http://127.0.0.1:5001/number_odd_or_even/$1;
+    }
 
-	location /airbnb-dynamic/ {
-		proxy_pass http://localhost:5001/;
-	}
-
-	if ($request_filename ~ redirect_me){
-		rewrite ^ https://sketchfab.com/bluepeno/models permanent;
-	}
-
-	error_page 404 /404.html;
-	location = /404.html {
-		root /var/www/error/;
-		internal;
-	}
+    # 404 error page
+    error_page 404 /404.html;
+    location /404 {
+        root /var/www/html;
+        internal;
+    }
 }
